@@ -175,10 +175,8 @@ def read_json(path):
 
 
 def generation(data):
-    # config 
-    element = data.get('元素')
-
     character_data: dict = data.get('Character')
+    character_element: str = character_data.get('Element')
     character_name: str = character_data.get('Name')
     character_constellations: int = character_data.get('Const')
     character_level: int = character_data.get('Level')
@@ -199,11 +197,6 @@ def generation(data):
 
     score_data: dict = data.get('Score')
     score_cv_basis: str = score_data.get('State')
-    score_flower: float = score_data.get('flower')
-    score_wing: float = score_data.get('wing')
-    score_clock: float = score_data.get('clock')
-    score_cup: float = score_data.get('cup')
-    score_crown: float = score_data.get('crown')
     score_total: float = score_data.get('total')
 
     artifacts_data: dict = data.get('Artifacts')
@@ -211,12 +204,12 @@ def generation(data):
     cwd = os.path.abspath(os.path.dirname(__file__))
     config_font = lambda size: ImageFont.truetype(f'{cwd}/Assets/ja-jp.ttf', size)
 
-    base_image = Image.open(f'{cwd}/Base/{element}.png')
+    base_image = Image.open(f'{cwd}/Base/{character_element}.png')
 
     # キャラクター
     character_costume = character_data.get('Costume')
     if character_name in ['蛍', '空']:
-        character_image = Image.open(f'{cwd}/character/{character_name}({element})/avatar.png').convert("RGBA")
+        character_image = Image.open(f'{cwd}/character/{character_name}({character_element})/avatar.png').convert("RGBA")
     else:
         if character_costume:
             character_image = Image.open(f'{cwd}/character/{character_name}/{CharacterCostume}.png').convert("RGBA")
@@ -275,8 +268,8 @@ def generation(data):
     base_image = Image.alpha_composite(base_image, talent_base_paste)
 
     # 凸
-    star_base = Image.open(f'{cwd}/命の星座/{element}.png').resize((90, 90)).convert('RGBA')
-    star_locked = Image.open(f'{cwd}/命の星座/{element}LOCK.png').resize((90, 90)).convert('RGBA')
+    star_base = Image.open(f'{cwd}/命の星座/{character_element}.png').resize((90, 90)).convert('RGBA')
+    star_locked = Image.open(f'{cwd}/命の星座/{character_element}LOCK.png').resize((90, 90)).convert('RGBA')
     star_locked_mask = star_locked.copy()
 
     star_paste = Image.new("RGBA", base_image.size, (255, 255, 255, 0))
@@ -331,7 +324,7 @@ def generation(data):
     for k, v in character_status.items():
         if k in ['氷元素ダメージ', '水元素ダメージ', '岩元素ダメージ', '草元素ダメージ', '風元素ダメージ', '炎元素ダメージ', '物理ダメージ',
                  '与える治癒効果', '雷元素ダメージ'] and v == 0:
-            k = f'{element}元素ダメージ'
+            k = f'{character_element}元素ダメージ'
         try:
             i = state_option.index(k)
         except:
@@ -353,8 +346,8 @@ def generation(data):
 
         if k in ['HP', '防御力', '攻撃力']:
             hp_pls, hp_base, hp_size, hp_bsize = gen_base_text(k)
-            drew_base.text((1360 - HPsize, 97 + i * 70), hp_pls, fill=(0, 255, 0, 180), font=config_font(12))
-            drew_base.text((1360 - HPsize - hp_bsize - 1, 97 + i * 70), hp_base, font=config_font(12), fill=(255, 255, 255, 180))
+            drew_base.text((1360 - hp_size, 97 + i * 70), hp_pls, fill=(0, 255, 0, 180), font=config_font(12))
+            drew_base.text((1360 - hp_size - hp_bsize - 1, 97 + i * 70), hp_base, font=config_font(12), fill=(255, 255, 255, 180))
 
     drew_base.text((1582, 47), weapon_name, font=config_font(26))
     wlebel_len = drew_base.textlength(f'Lv.{weapon_level}', font=config_font(24))
@@ -378,7 +371,7 @@ def generation(data):
         base_image.paste(base_atk, (1600, 155), mask=base_atk_mask)
 
         drew_base.text((1623, 155),
-                       f'{option_map.get(weapon_sub_op_key) or weapon_sub_op_key}  {str(weapon_sub_op_value) + "%" if weapon_sub_op_key in disper else format(weapon_sub_op_value, ", ")}',
+                       f'{option_map.get(weapon_sub_op_key) or weapon_sub_op_key}  {str(weapon_sub_op_value) + "%" if weapon_sub_op_key in disper else format(weapon_sub_op_value, ",")}',
                        font=config_font(23))
 
     drew_base.rounded_rectangle((1430, 45, 1470, 70), radius=1, fill='black')
@@ -442,8 +435,8 @@ def generation(data):
             mainvsize = drew_base.textlength(f'{float(mainv)}%', config_font(49))
             drew_base.text((375 + i * 373 - mainvsize, 690), f'{float(mainv)}%', font=config_font(49))
         else:
-            mainvsize = drew_base.textlength(format(mainv, ", "), config_font(49))
-            drew_base.text((375 + i * 373 - mainvsize, 690), format(mainv, ", "), font=config_font(49))
+            mainvsize = drew_base.textlength(format(mainv, ","), config_font(49))
+            drew_base.text((375 + i * 373 - mainvsize, 690), format(mainv, ","), font=config_font(49))
         level_len = drew_base.textlength(f'+{details["Level"]}', config_font(21))
         drew_base.rounded_rectangle((373 + i * 373 - int(level_len), 748, 375 + i * 373, 771), fill='black', radius=2)
         drew_base.text((374 + i * 373 - level_len, 749), f'+{details["Level"]}', font=config_font(21))
@@ -475,12 +468,12 @@ def generation(data):
                 sub_size = drew_base.textlength(f'{float(sub_val)}%', config_font(25))
                 drew_base.text((375 + i * 373 - sub_size, 811 + 50 * a), f'{float(sub_val)}%', font=config_font(25))
             else:
-                sub_size = drew_base.textlength(format(sub_val, ", "), config_font(25))
+                sub_size = drew_base.textlength(format(sub_val, ","), config_font(25))
                 if sub_op in ['防御力', '攻撃力', 'HP']:
-                    drew_base.text((375 + i * 373 - sub_size, 811 + 50 * a), format(sub_val, ", "), font=config_font(25),
+                    drew_base.text((375 + i * 373 - sub_size, 811 + 50 * a), format(sub_val, ","), font=config_font(25),
                                    fill=(255, 255, 255, 190))
                 else:
-                    drew_base.text((375 + i * 373 - sub_size, 811 + 50 * a), format(sub_val, ", "), font=config_font(25),
+                    drew_base.text((375 + i * 373 - sub_size, 811 + 50 * a), format(sub_val, ","), font=config_font(25),
                                    fill=(255, 255, 255))
 
             if details['Level'] == 20 and details['rarelity'] == 5:
@@ -560,18 +553,14 @@ def generation(data):
 
             base_image.paste(badge, (1843 - i * 45, 533), mask=badge_mask)
 
-    base_image.show()
     base_image.save(f'{cwd}/Tests/Image.png')
 
     return pil_to_base64(base_image, format='png')
 
 
-def pil_to_base64(img, format="jpeg"):
+def pil_to_base64(img, format):
     buffer = BytesIO()
     img.save(buffer, format)
-    img_str = base64.b64encode(buffer.getvalue()).decode("ascii")
+    img_str = base64.b64encode(buffer.getvalue())
 
     return img_str
-
-
-generation(read_json('data.json'))
